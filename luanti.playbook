@@ -1,0 +1,43 @@
+- hosts: localhost
+  connection: local
+  become: yes
+
+  tasks:
+
+  - name: Flatpak installieren
+    ansible.builtin.apt:
+      name: flatpak
+      state: present
+
+  - name: Flathub Repository hinzufuegen
+    flatpak_remote:
+      name: flathub
+      state: present
+      flatpakrepo_url: https://dl.flathub.org/repo/flathub.flatpakrepo
+
+  - name: Luanti installieren
+    flatpak:
+      name: org.luanti.luanti
+      state: latest
+
+  - name: Luanti Config-Verzeichnis erstellen
+    ansible.builtin.file:
+      path: "/home/kidslab/.var/app/org.luanti.luanti/.minetest/"
+      owner: kidslab
+      group: kidslab
+      mode: '0777'
+      state: directory
+
+  - name: Luanti Serverlist-Verzeichnis erstellen
+    ansible.builtin.file:
+      path: "/home/kidslab/.var/app/org.luanti.luanti/.minetest/client/serverlist/"
+      owner: kidslab
+      group: kidslab
+      mode: '0777'
+      state: directory
+
+  - name: Luanti Einstellungen kopieren
+    copy: src=minetest.conf dest=/home/kidslab/.var/app/org.luanti.luanti/.minetest/minetest.conf owner=kidslab group=kidslab mode=777
+
+  - name: Luanti Serverliste kopieren
+    copy: src=favoriteservers.json dest=/home/kidslab/.var/app/org.luanti.luanti/.minetest/client/serverlist/favoriteservers.json owner=kidslab group=kidslab mode=777

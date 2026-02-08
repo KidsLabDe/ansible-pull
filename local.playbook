@@ -1,0 +1,84 @@
+- hosts: localhost
+  connection: local
+  become: yes
+
+  tasks:
+
+  - name: Add the user 'KidsLab'
+    ansible.builtin.user:
+      name: kidslab
+      comment: KidsLab
+      groups: dialout
+      append: true
+      password: $y$j9T$qoGqDICIg9yMPv8TFR.ix/$UIHmpL31dQ/Mlp4XH2KbOB1/6u4H/CWXCgsg5geEzt6
+
+  - name: Add user to netdev group / allow wifi changes
+    user:
+      name: kidslab
+      groups: "netdev"
+      append: yes
+
+  - name: Create the wifi connection Zukunftsnaechte
+    community.general.nmcli:
+      type: wifi
+      conn_name: Zukunftsnaechte
+      ssid: Zukunftsnaechte
+      autoconnect: true
+      state: present
+
+  - name: Create the wifi connection KidsLab-Gast
+    community.general.nmcli:
+      type: wifi
+      conn_name: Kidslab-Gast
+      ssid: KidsLab-Gast
+      autoconnect: false
+      state: absent
+
+  - name: autologin getty override dir
+    ansible.builtin.file:
+      path: /etc/systemd/system/getty@tty1.service.d
+      owner: root
+      group: root
+      mode: '0644'
+      state: directory
+
+  - name: Autologin getty override
+    ansible.builtin.copy:
+      src: override.conf
+      dest: /etc/systemd/system/getty@tty1.service.d/override.conf
+      owner: root
+      group: root
+      mode: '0644'
+
+  - name: Enable Autologin GDM3
+    copy: src=custom.conf dest=/etc/gdm3/custom.conf owner=root group=root mode=644
+
+  - name: Copy wallpaper file
+    copy: src=background/minecraft-bulb.png dest=/home/kidslab/.wallpaper.png owner=kidslab group=kidslab mode=600
+
+  - name: Set GNOME Wallpaper
+    become_user: kidslab
+    community.general.dconf:
+      key: "/org/gnome/desktop/background/picture-uri"
+      value: "'file:///home/kidslab/.wallpaper.png'"
+
+  - name: Bildschirmsperre deaktivieren
+    become_user: kidslab
+    community.general.dconf:
+      key: "/org/gnome/desktop/session/-delay"
+      value: "0"
+
+  - name: Bildschirm Idle-Delay setzen
+    become_user: kidslab
+    community.general.dconf:
+      key: "/org/gnome/session/idle-delay"
+      value: "1800"
+
+  - name: GDM dconf Profile
+    copy: src=gdm dest=/etc/dconf/profile/ group=root mode=600
+
+  - name: GDM Login-Banner
+    copy: src=01-banner-message dest=/etc/dconf/db/gdm.d/ group=root mode=600
+
+  - name: dconf update
+    ansible.builtin.shell: dconf update
