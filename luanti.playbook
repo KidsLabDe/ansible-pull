@@ -8,6 +8,7 @@
     ansible.builtin.apt:
       name: flatpak
       state: present
+      update_cache: yes
 
   - name: Flathub Repository hinzufuegen
     flatpak_remote:
