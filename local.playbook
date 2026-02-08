@@ -23,6 +23,12 @@
       insertbefore: BOF
     when: pacoloco_check is succeeded
 
+  - name: Komplettes System-Update (nur mit Pacoloco-Mirror)
+    ansible.builtin.pacman:
+      update_cache: yes
+      upgrade: yes
+    when: pacoloco_check is succeeded
+
   - name: Systempakete installieren
     ansible.builtin.pacman:
       name:
