@@ -4,11 +4,14 @@
 
   tasks:
 
+  - name: python3-apt sicherstellen
+    ansible.builtin.raw: apt-get update && apt-get install -y python3-apt
+    changed_when: false
+
   - name: Flatpak installieren
     ansible.builtin.apt:
       name: flatpak
       state: present
-      update_cache: yes
 
   - name: Flathub Repository hinzufuegen
     flatpak_remote:
