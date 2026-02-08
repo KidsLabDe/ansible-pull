@@ -166,9 +166,26 @@
       enabled: yes
       daemon_reload: yes
 
-  - name: Alias 'update' fuer kidslab User anlegen
+  - name: Passwordloses sudo fuer kidslab-update
+    ansible.builtin.copy:
+      dest: /etc/sudoers.d/kidslab-update
+      owner: root
+      group: root
+      mode: '0440'
+      content: "{{ the_user }} ALL=(ALL) NOPASSWD: /usr/local/bin/kidslab-update\n"
+
+  - name: Alias 'update' in .bashrc anlegen
     ansible.builtin.lineinfile:
       path: "/home/{{ the_user }}/.bashrc"
+      line: "alias update='sudo /usr/local/bin/kidslab-update'"
+      create: yes
+      owner: "{{ the_user }}"
+      group: "{{ the_user }}"
+      mode: '0644'
+
+  - name: Alias 'update' in .zshrc anlegen
+    ansible.builtin.lineinfile:
+      path: "/home/{{ the_user }}/.zshrc"
       line: "alias update='sudo /usr/local/bin/kidslab-update'"
       create: yes
       owner: "{{ the_user }}"
