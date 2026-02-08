@@ -127,6 +127,54 @@
       - "/home/{{ the_user }}/.config/dconf"
       - "/home/{{ the_user }}/.ansible/tmp"
 
+  - name: Update-Script installieren
+    ansible.builtin.copy:
+      src: kidslab-update.sh
+      dest: /usr/local/bin/kidslab-update
+      owner: root
+      group: root
+      mode: '0755'
+
+  - name: Cron-Job fuer stuendliches ansible-pull
+    ansible.builtin.cron:
+      name: "kidslab ansible-pull"
+      minute: "{{ 59 | random(seed=inventory_hostname) }}"
+      job: "/usr/local/bin/kidslab-update > /dev/null 2>&1"
+
+  - name: systemd Service fuer ansible-pull beim Boot
+    ansible.builtin.copy:
+      dest: /etc/systemd/system/kidslab-update.service
+      owner: root
+      group: root
+      mode: '0644'
+      content: |
+        [Unit]
+        Description=KidsLab ansible-pull beim Boot
+        After=network-online.target
+        Wants=network-online.target
+
+        [Service]
+        Type=oneshot
+        ExecStart=/usr/local/bin/kidslab-update
+
+        [Install]
+        WantedBy=multi-user.target
+
+  - name: systemd Service aktivieren
+    ansible.builtin.systemd:
+      name: kidslab-update.service
+      enabled: yes
+      daemon_reload: yes
+
+  - name: Alias 'update' fuer kidslab User anlegen
+    ansible.builtin.lineinfile:
+      path: "/home/{{ the_user }}/.bashrc"
+      line: "alias update='sudo /usr/local/bin/kidslab-update'"
+      create: yes
+      owner: "{{ the_user }}"
+      group: "{{ the_user }}"
+      mode: '0644'
+
   - name: GNOME-Einstellungen fuer den Benutzer setzen
     become_user: "{{ the_user }}"
     community.general.dconf:
