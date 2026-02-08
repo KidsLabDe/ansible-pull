@@ -19,7 +19,7 @@
   - name: Pacoloco-Mirror in mirrorlist eintragen (wenn erreichbar)
     ansible.builtin.lineinfile:
       path: /etc/pacman.d/mirrorlist
-      line: "Server = http://{{ pacoloco_server }}:{{ pacoloco_port }}/repo/$repo/os/$arch"
+      line: "Server = http://{{ pacoloco_server }}:{{ pacoloco_port }}/repo/archlinux/$repo/os/$arch"
       insertbefore: BOF
     when: pacoloco_check is succeeded
 
