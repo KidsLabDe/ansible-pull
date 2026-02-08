@@ -9,8 +9,9 @@
   tasks:
 
   - name: Pruefen ob Pacoloco-Mirror erreichbar ist
-    ansible.builtin.uri:
-      url: "http://{{ pacoloco_server }}:{{ pacoloco_port }}"
+    ansible.builtin.wait_for:
+      host: "{{ pacoloco_server }}"
+      port: "{{ pacoloco_port }}"
       timeout: 3
     register: pacoloco_check
     ignore_errors: yes
@@ -28,6 +29,7 @@
         - networkmanager
         - gdm
         - gnome-shell
+        - python-psutil
       state: present
       update_cache: yes
 
