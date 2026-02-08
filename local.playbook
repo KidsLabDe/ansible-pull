@@ -109,6 +109,18 @@
   - name: DConf-Einstellungen anwenden
     ansible.builtin.command: dconf update
 
+  - name: Benutzerverzeichnisse fuer dconf erstellen
+    ansible.builtin.file:
+      path: "{{ item }}"
+      state: directory
+      owner: "{{ the_user }}"
+      group: "{{ the_user }}"
+      mode: '0755'
+    loop:
+      - "/home/{{ the_user }}/.cache/dconf"
+      - "/home/{{ the_user }}/.config/dconf"
+      - "/home/{{ the_user }}/.ansible/tmp"
+
   - name: GNOME-Einstellungen fuer den Benutzer setzen
     become_user: "{{ the_user }}"
     community.general.dconf:
