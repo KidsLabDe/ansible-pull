@@ -42,3 +42,6 @@
 
   - name: Luanti Serverliste kopieren
     copy: src=favoriteservers.json dest=/home/kidslab/.var/app/org.luanti.luanti/.minetest/client/serverlist/favoriteservers.json owner=kidslab group=kidslab mode=777
+
+  - name: MOTD-Script fuer ansible-pull Status
+    copy: src=99-ansible-pull dest=/etc/update-motd.d/99-ansible-pull owner=root group=root mode=755

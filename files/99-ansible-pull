@@ -1,0 +1,4 @@
+#!/bin/bash
+if [ -f /etc/ansible-pull-status ]; then
+    cat /etc/ansible-pull-status
+fi

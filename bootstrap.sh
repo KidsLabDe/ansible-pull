@@ -23,4 +23,6 @@ ansible-galaxy collection install community.general
 echo "Starte ansible-pull..."
 ansible-pull -U "$REPO_URL" "$PLAYBOOK"
 
+# Timestamp fuer MOTD schreiben
+echo "Letztes ansible-pull: $(date '+%d.%m.%Y %H:%M')" > /etc/ansible-pull-status
 echo "=== Fertig! ==="
