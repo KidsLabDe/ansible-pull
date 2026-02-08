@@ -3,8 +3,24 @@
   become: yes
   vars:
     the_user: "kidslab"
+    pacoloco_server: "192.168.178.95"
+    pacoloco_port: "9129"
 
   tasks:
+
+  - name: Pruefen ob Pacoloco-Mirror erreichbar ist
+    ansible.builtin.uri:
+      url: "http://{{ pacoloco_server }}:{{ pacoloco_port }}"
+      timeout: 3
+    register: pacoloco_check
+    ignore_errors: yes
+
+  - name: Pacoloco-Mirror in mirrorlist eintragen (wenn erreichbar)
+    ansible.builtin.lineinfile:
+      path: /etc/pacman.d/mirrorlist
+      line: "Server = http://{{ pacoloco_server }}:{{ pacoloco_port }}/repo/$repo/os/$arch"
+      insertbefore: BOF
+    when: pacoloco_check is succeeded
 
   - name: Systempakete installieren
     ansible.builtin.pacman:
