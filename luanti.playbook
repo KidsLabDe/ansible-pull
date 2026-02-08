@@ -4,25 +4,23 @@
 
   tasks:
 
-  - name: python3-apt sicherstellen
-    ansible.builtin.raw: apt-get update && apt-get install -y python3-apt
-    changed_when: false
-
   - name: Flatpak installieren
-    ansible.builtin.apt:
+    ansible.builtin.pacman:
       name: flatpak
       state: present
+      update_cache: yes
 
   - name: Flathub Repository hinzufuegen
-    flatpak_remote:
+    community.general.flatpak_remote:
       name: flathub
       state: present
       flatpakrepo_url: https://dl.flathub.org/repo/flathub.flatpakrepo
+      method: system
 
   - name: Luanti installieren
-    flatpak:
+    community.general.flatpak:
       name: org.luanti.luanti
-      state: latest
+      state: present
 
   - name: Luanti Config-Verzeichnis erstellen
     ansible.builtin.file:
@@ -41,10 +39,25 @@
       state: directory
 
   - name: Luanti Einstellungen kopieren
-    copy: src=minetest.conf dest=/home/kidslab/.var/app/org.luanti.luanti/.minetest/minetest.conf owner=kidslab group=kidslab mode=777
+    ansible.builtin.copy:
+      src: minetest.conf
+      dest: /home/kidslab/.var/app/org.luanti.luanti/.minetest/minetest.conf
+      owner: kidslab
+      group: kidslab
+      mode: '0777'
 
   - name: Luanti Serverliste kopieren
-    copy: src=favoriteservers.json dest=/home/kidslab/.var/app/org.luanti.luanti/.minetest/client/serverlist/favoriteservers.json owner=kidslab group=kidslab mode=777
+    ansible.builtin.copy:
+      src: favoriteservers.json
+      dest: /home/kidslab/.var/app/org.luanti.luanti/.minetest/client/serverlist/favoriteservers.json
+      owner: kidslab
+      group: kidslab
+      mode: '0777'
 
   - name: MOTD-Script fuer ansible-pull Status
-    copy: src=99-ansible-pull dest=/etc/update-motd.d/99-ansible-pull owner=root group=root mode=755
+    ansible.builtin.copy:
+      src: 99-ansible-pull
+      dest: /etc/profile.d/ansible-pull-status.sh
+      owner: root
+      group: root
+      mode: '0755'

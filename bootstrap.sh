@@ -12,8 +12,7 @@ echo ""
 echo "=== KidsLab ansible-pull Bootstrap $(date) ==="
 
 # Abhaengigkeiten sicherstellen
-apt-get update
-apt-get install -y ansible git python3-apt
+pacman -Sy --noconfirm --needed ansible git
 
 # community.general Collection installieren
 echo "Ansible Collections installieren..."

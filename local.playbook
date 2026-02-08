@@ -1,48 +1,54 @@
 - hosts: localhost
   connection: local
   become: yes
+  vars:
+    the_user: "kidslab"
 
   tasks:
 
-  - name: Add the user 'KidsLab'
-    ansible.builtin.user:
-      name: kidslab
-      comment: KidsLab
-      groups: dialout
-      append: true
-      password: $y$j9T$qoGqDICIg9yMPv8TFR.ix/$UIHmpL31dQ/Mlp4XH2KbOB1/6u4H/CWXCgsg5geEzt6
+  - name: Systempakete installieren
+    ansible.builtin.pacman:
+      name:
+        - networkmanager
+        - gdm
+        - gnome-shell
+      state: present
+      update_cache: yes
 
-  - name: Add user to netdev group / allow wifi changes
-    user:
-      name: kidslab
-      groups: "netdev"
+  - name: Benutzer 'kidslab' erstellen
+    ansible.builtin.user:
+      name: "{{ the_user }}"
+      comment: KidsLab
+      password: "$y$j9T$qoGqDICIg9yMPv8TFR.ix/$UIHmpL31dQ/Mlp4XH2KbOB1/6u4H/CWXCgsg5geEzt6"
+
+  - name: Benutzer zur Gruppe 'network' hinzufuegen (WLAN-Verwaltung)
+    ansible.builtin.user:
+      name: "{{ the_user }}"
+      groups: "network,uucp"
       append: yes
 
-  - name: Create the wifi connection Zukunftsnaechte
+  - name: WLAN-Verbindung 'Zukunftsnaechte' erstellen
     community.general.nmcli:
-      type: wifi
       conn_name: Zukunftsnaechte
+      type: wifi
       ssid: Zukunftsnaechte
-      autoconnect: true
+      autoconnect: yes
       state: present
 
-  - name: Create the wifi connection KidsLab-Gast
+  - name: WLAN-Verbindung 'Kidslab-Gast' entfernen
     community.general.nmcli:
-      type: wifi
       conn_name: Kidslab-Gast
-      ssid: KidsLab-Gast
-      autoconnect: false
       state: absent
 
-  - name: autologin getty override dir
+  - name: Verzeichnis fuer TTY-Autologin erstellen
     ansible.builtin.file:
       path: /etc/systemd/system/getty@tty1.service.d
+      state: directory
       owner: root
       group: root
-      mode: '0644'
-      state: directory
+      mode: '0755'
 
-  - name: Autologin getty override
+  - name: Autologin-Konfiguration fuer TTY1 kopieren
     ansible.builtin.copy:
       src: override.conf
       dest: /etc/systemd/system/getty@tty1.service.d/override.conf
@@ -50,35 +56,58 @@
       group: root
       mode: '0644'
 
-  - name: Enable Autologin GDM3
-    copy: src=custom.conf dest=/etc/gdm3/custom.conf owner=root group=root mode=644
+  - name: Hintergrundbild kopieren
+    ansible.builtin.copy:
+      src: background/minecraft-bulb.png
+      dest: "/home/{{ the_user }}/.wallpaper.png"
+      owner: "{{ the_user }}"
+      group: "{{ the_user }}"
+      mode: '0600'
 
-  - name: Copy wallpaper file
-    copy: src=background/minecraft-bulb.png dest=/home/kidslab/.wallpaper.png owner=kidslab group=kidslab mode=600
+  - name: DConf-Profil fuer GDM kopieren
+    ansible.builtin.copy:
+      src: gdm
+      dest: /etc/dconf/profile/
+      owner: root
+      group: root
+      mode: '0644'
 
-  - name: Set GNOME Wallpaper
-    become_user: kidslab
+  - name: DConf-Verzeichnis fuer GDM erstellen
+    ansible.builtin.file:
+      path: /etc/dconf/db/gdm.d
+      state: directory
+      owner: root
+      group: root
+      mode: '0755'
+
+  - name: GDM Login-Banner kopieren
+    ansible.builtin.copy:
+      src: 01-banner-message
+      dest: /etc/dconf/db/gdm.d/
+      owner: root
+      group: root
+      mode: '0644'
+
+  - name: DConf-Einstellungen anwenden
+    ansible.builtin.command: dconf update
+
+  - name: GNOME-Einstellungen fuer den Benutzer setzen
+    become_user: "{{ the_user }}"
     community.general.dconf:
-      key: "/org/gnome/desktop/background/picture-uri"
-      value: "'file:///home/kidslab/.wallpaper.png'"
-
-  - name: Bildschirmsperre deaktivieren
-    become_user: kidslab
-    community.general.dconf:
-      key: "/org/gnome/desktop/session/-delay"
-      value: "0"
-
-  - name: Bildschirm Idle-Delay setzen
-    become_user: kidslab
-    community.general.dconf:
-      key: "/org/gnome/session/idle-delay"
-      value: "1800"
-
-  - name: GDM dconf Profile
-    copy: src=gdm dest=/etc/dconf/profile/ group=root mode=600
-
-  - name: GDM Login-Banner
-    copy: src=01-banner-message dest=/etc/dconf/db/gdm.d/ group=root mode=600
-
-  - name: dconf update
-    ansible.builtin.shell: dconf update
+      key: "{{ item.key }}"
+      value: "{{ item.value }}"
+    loop:
+      - key: "/org/gnome/desktop/background/picture-uri"
+        value: "'file:///home/{{ the_user }}/.wallpaper.png'"
+      - key: "/org/gnome/desktop/session/idle-delay"
+        value: "uint32 0"
+      - key: "/org/gnome/desktop/screensaver/lock-enabled"
+        value: "false"
+      - key: "/org/gnome/settings-daemon/plugins/power/sleep-inactive-ac-timeout"
+        value: "0"
+      - key: "/org/gnome/settings-daemon/plugins/power/sleep-inactive-ac-type"
+        value: "'nothing'"
+      - key: "/org/gnome/desktop/interface/color-scheme"
+        value: "'default'"
+      - key: "/org/gnome/desktop/interface/accent-color"
+        value: "'red'"
