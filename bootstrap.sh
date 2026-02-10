@@ -11,8 +11,15 @@ exec > >(tee -a "$LOGFILE") 2>&1
 echo ""
 echo "=== KidsLab ansible-pull Bootstrap $(date) ==="
 
-# Abhaengigkeiten sicherstellen
-pacman -Sy --noconfirm --needed ansible git
+# Volles System-Upgrade (Arch: nie partielles -Sy ohne -u verwenden)
+pacman -Syu --noconfirm --needed ansible git
+
+# Falls Python aktualisiert wurde, kann das ansible-Modul fehlen.
+# In diesem Fall ansible neu installieren.
+if ! python -c "import ansible" 2>/dev/null; then
+    echo "Ansible Python-Modul nicht gefunden, reinstalliere ansible..."
+    pacman -S --noconfirm ansible
+fi
 
 # community.general Collection installieren
 echo "Ansible Collections installieren..."
