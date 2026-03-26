@@ -5,7 +5,7 @@
       "name": "Kidslab Ollama",
       "npm": "@ai-sdk/openai-compatible",
       "options": {
-        "baseURL": "https://kidslab:xxxxxxxx@kidslab.duckdns.org/ollama/v1"
+        "baseURL": "https://kidslab:xxxxxxxx@kidslab.duckdns.org/api-ext/v1"
       },
       "models": {
         "glm-4.7-flash:q8_0": {
