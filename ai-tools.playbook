@@ -54,14 +54,13 @@
     ansible.builtin.get_url:
       url: "https://github.com/block/goose/releases/download/{{ goose_version }}/io.github.block.Goose_stable_x86_64.flatpak"
       dest: /tmp/goose-desktop.flatpak
-    when: goose_installed.rc != 0 or goose_version_number not in (goose_installed.stdout | default(''))
+    when: goose_installed.rc != 0
 
-  - name: Goose Desktop Flatpak installieren oder aktualisieren
+  - name: Goose Desktop Flatpak installieren
     ansible.builtin.command:
-      cmd: flatpak install --noninteractive --or-update --system /tmp/goose-desktop.flatpak
-    register: goose_install
-    changed_when: "'installed' in goose_install.stdout or 'Installing' in goose_install.stdout"
-    when: goose_installed.rc != 0 or goose_version_number not in (goose_installed.stdout | default(''))
+      cmd: flatpak install --noninteractive --system /tmp/goose-desktop.flatpak
+    when: goose_installed.rc != 0
+    changed_when: true
 
   - name: Goose Desktop Flatpak aufraeumen
     ansible.builtin.file:
