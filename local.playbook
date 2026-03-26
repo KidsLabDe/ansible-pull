@@ -16,6 +16,12 @@
     register: pacoloco_check
     ignore_errors: yes
 
+  - name: Alte Pacoloco-Mirror-URL entfernen
+    ansible.builtin.lineinfile:
+      path: /etc/pacman.d/mirrorlist
+      regexp: 'pacoloco.*archlinux'
+      state: absent
+
   - name: Pacoloco-Mirror in mirrorlist eintragen (wenn erreichbar)
     ansible.builtin.lineinfile:
       path: /etc/pacman.d/mirrorlist
