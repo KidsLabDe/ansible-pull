@@ -45,6 +45,14 @@
       state: present
       update_cache: yes
 
+  - name: PackageKit deaktivieren (Updates nur ueber ansible-pull)
+    ansible.builtin.systemd:
+      name: packagekit
+      enabled: no
+      state: stopped
+      masked: yes
+    ignore_errors: yes
+
   - name: Benutzer 'kidslab' erstellen
     ansible.builtin.user:
       name: "{{ the_user }}"
@@ -218,3 +226,9 @@
         value: "'default'"
       - key: "/org/gnome/desktop/interface/accent-color"
         value: "'red'"
+      - key: "/org/gnome/software/download-updates"
+        value: "false"
+      - key: "/org/gnome/software/download-updates-notify"
+        value: "false"
+      - key: "/org/gnome/software/allow-updates"
+        value: "false"
