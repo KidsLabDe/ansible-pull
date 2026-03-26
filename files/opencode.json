@@ -1,0 +1,30 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "kidslab": {
+      "name": "Kidslab Ollama",
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "https://kidslab:xxxxxxxx@kidslab.duckdns.org/ollama/v1"
+      },
+      "models": {
+        "glm-4.7-flash:q8_0": {
+          "name": "GLM 4.7 Flash Q8_0"
+        },
+        "glm-4.7-flash:latest": {
+          "name":"glm-4.7-flash"
+        },
+        "qwen2.5-coder:14b": {
+          "name": "Qwen 2.5 Coder 14B"
+        },
+        "gemma3:12b": {
+          "name": "Gemma 3 12B"
+        },
+        "qwen2.5vl:7b": {
+          "name": "Qwen 2.5 VL 7B"
+        }
+      }
+    }
+  },
+  "model": "kidslab/glm-4.7-flash:latest"
+}

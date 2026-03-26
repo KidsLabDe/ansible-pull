@@ -1,0 +1,73 @@
+- hosts: localhost
+  connection: local
+  become: yes
+  vars:
+    the_user: "kidslab"
+
+  tasks:
+
+  # --- OpenCode ---
+
+  - name: OpenCode installieren
+    ansible.builtin.pacman:
+      name: opencode
+      state: present
+
+  - name: OpenCode Config-Verzeichnis erstellen
+    ansible.builtin.file:
+      path: "/home/{{ the_user }}/.config/opencode"
+      state: directory
+      owner: "{{ the_user }}"
+      group: "{{ the_user }}"
+      mode: '0755'
+
+  - name: OpenCode Konfiguration kopieren (Passwort manuell anpassen)
+    ansible.builtin.copy:
+      src: opencode.json
+      dest: "/home/{{ the_user }}/.config/opencode/opencode.json"
+      owner: "{{ the_user }}"
+      group: "{{ the_user }}"
+      mode: '0600'
+      force: no
+
+  # --- Goose Desktop ---
+
+  - name: Aktuelle Goose-Version von GitHub ermitteln
+    ansible.builtin.uri:
+      url: https://api.github.com/repos/block/goose/releases/latest
+      return_content: yes
+    register: goose_release
+
+  - name: Goose-Version setzen
+    ansible.builtin.set_fact:
+      goose_version: "{{ goose_release.json.tag_name }}"
+
+  - name: Pruefen ob Goose Desktop bereits installiert ist
+    ansible.builtin.command: flatpak info io.github.block.Goose
+    register: goose_installed
+    changed_when: false
+    failed_when: false
+
+  - name: Goose Desktop Flatpak herunterladen
+    ansible.builtin.get_url:
+      url: "https://github.com/block/goose/releases/download/{{ goose_version }}/io.github.block.Goose_stable_x86_64.flatpak"
+      dest: /tmp/goose-desktop.flatpak
+    when: goose_installed.rc != 0 or goose_version not in (goose_installed.stdout | default(''))
+
+  - name: Goose Desktop Flatpak installieren
+    ansible.builtin.command:
+      cmd: flatpak install --noninteractive --system /tmp/goose-desktop.flatpak
+    register: goose_install
+    changed_when: "'installed' in goose_install.stdout or 'Installing' in goose_install.stdout"
+    when: goose_installed.rc != 0 or goose_version not in (goose_installed.stdout | default(''))
+
+  - name: Goose Desktop Flatpak aufraeumen
+    ansible.builtin.file:
+      path: /tmp/goose-desktop.flatpak
+      state: absent
+
+  - name: Goose Desktop in GNOME-Schnellstartleiste aufnehmen
+    become_user: "{{ the_user }}"
+    community.general.dconf:
+      key: "/org/gnome/shell/favorite-apps"
+      value: "['firefox.desktop', 'org.gnome.Nautilus.desktop', 'org.luanti.luanti.desktop', 'io.github.block.Goose.desktop']"

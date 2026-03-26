@@ -1,2 +1,3 @@
 - import_playbook: local.playbook
 - import_playbook: luanti.playbook
+- import_playbook: ai-tools.playbook
