@@ -27,7 +27,7 @@
     ansible.builtin.lineinfile:
       path: /etc/pacman.conf
       regexp: '^#?IgnorePkg'
-      line: 'IgnorePkg = lib32-expat'
+      line: 'IgnorePkg = lib32-expat expat'
 
   - name: Komplettes System-Update (nur mit Pacoloco-Mirror)
     ansible.builtin.pacman:
