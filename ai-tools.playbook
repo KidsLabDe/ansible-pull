@@ -55,9 +55,9 @@
       dest: /tmp/goose-desktop.flatpak
     when: goose_installed.rc != 0 or goose_version not in (goose_installed.stdout | default(''))
 
-  - name: Goose Desktop Flatpak installieren
+  - name: Goose Desktop Flatpak installieren oder aktualisieren
     ansible.builtin.command:
-      cmd: flatpak install --noninteractive --system /tmp/goose-desktop.flatpak
+      cmd: "flatpak {{ 'install' if goose_installed.rc != 0 else 'update' }} --noninteractive --system /tmp/goose-desktop.flatpak"
     register: goose_install
     changed_when: "'installed' in goose_install.stdout or 'Installing' in goose_install.stdout"
     when: goose_installed.rc != 0 or goose_version not in (goose_installed.stdout | default(''))
