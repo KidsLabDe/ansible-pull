@@ -1,0 +1,28 @@
+{
+  "name": "custom_kidslab_ollama",
+  "engine": "openai",
+  "display_name": "KidsLab Ollama",
+  "description": "Custom KidsLab Ollama provider",
+  "api_key_env": "",
+  "base_url": "https://kidslab.duckdns.org/api-ext/v1",
+  "models": [
+    {
+      "name": "glm-4.7-flash:latest",
+      "context_limit": 128000,
+      "input_token_cost": null,
+      "output_token_cost": null,
+      "currency": null,
+      "supports_cache_control": null
+    }
+  ],
+  "headers": {
+    "Authorization": "Basic {{ opencode_auth_token }}"
+  },
+  "timeout_seconds": null,
+  "supports_streaming": true,
+  "requires_auth": false,
+  "catalog_provider_id": null,
+  "base_path": null,
+  "env_vars": null,
+  "dynamic_models": null
+}

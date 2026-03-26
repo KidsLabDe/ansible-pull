@@ -67,6 +67,30 @@
       path: /tmp/goose-desktop.flatpak
       state: absent
 
+  - name: Goose Config-Verzeichnis erstellen
+    ansible.builtin.file:
+      path: "/home/{{ the_user }}/.var/app/io.github.block.Goose/config/goose/custom_providers"
+      state: directory
+      owner: "{{ the_user }}"
+      group: "{{ the_user }}"
+      mode: '0755'
+
+  - name: Goose Konfiguration deployen
+    ansible.builtin.template:
+      src: templates/goose-config.yaml.j2
+      dest: "/home/{{ the_user }}/.var/app/io.github.block.Goose/config/goose/config.yaml"
+      owner: "{{ the_user }}"
+      group: "{{ the_user }}"
+      mode: '0600'
+
+  - name: Goose Custom Provider deployen
+    ansible.builtin.template:
+      src: templates/goose-custom-provider.json.j2
+      dest: "/home/{{ the_user }}/.var/app/io.github.block.Goose/config/goose/custom_providers/custom_kidslab_ollama.json"
+      owner: "{{ the_user }}"
+      group: "{{ the_user }}"
+      mode: '0600'
+
   - name: Goose Desktop in GNOME-Schnellstartleiste aufnehmen
     become_user: "{{ the_user }}"
     community.general.dconf:
