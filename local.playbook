@@ -3,7 +3,7 @@
   become: yes
   vars:
     the_user: "kidslab"
-    pacoloco_server: "192.168.178.95"
+    pacoloco_server: "192.168.88.18"
     pacoloco_port: "9129"
 
   tasks:
