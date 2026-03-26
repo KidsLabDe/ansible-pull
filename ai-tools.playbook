@@ -3,6 +3,8 @@
   become: yes
   vars:
     the_user: "kidslab"
+  vars_files:
+    - vars/vault.yml
 
   tasks:
 
@@ -21,14 +23,13 @@
       group: "{{ the_user }}"
       mode: '0755'
 
-  - name: OpenCode Konfiguration kopieren (Passwort manuell anpassen)
-    ansible.builtin.copy:
-      src: opencode.json
+  - name: OpenCode Konfiguration deployen
+    ansible.builtin.template:
+      src: templates/opencode.json.j2
       dest: "/home/{{ the_user }}/.config/opencode/opencode.json"
       owner: "{{ the_user }}"
       group: "{{ the_user }}"
       mode: '0600'
-      force: no
 
   # --- Goose Desktop ---
 

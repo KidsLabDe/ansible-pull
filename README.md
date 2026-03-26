@@ -42,6 +42,32 @@ cat /var/log/ansible-pull.log
 
 Der Zeitpunkt der letzten Ausfuehrung wird beim Terminal-Oeffnen angezeigt.
 
+## Vault (Passwort-Verwaltung)
+
+Sensible Daten (z.B. API-Zugangsdaten fuer OpenCode) sind mit Ansible Vault verschluesselt.
+Damit `ansible-pull` die Secrets entschluesseln kann, muss auf jedem Client das Vault-Passwort hinterlegt sein.
+
+### Neuen Client einrichten
+
+Das Script `setup-vault.sh` auf den Client kopieren und als root ausfuehren:
+
+```bash
+sudo bash setup-vault.sh
+```
+
+Das legt `/root/.vault_pass` an. Diese Datei wird von `ansible.cfg` automatisch verwendet.
+
+**Wichtig:** `setup-vault.sh` und `.vault_pass` sind im `.gitignore` und duerfen NICHT ins Repo committed werden.
+
+### Vault-Variable aendern
+
+```bash
+# Neuen Wert verschluesseln:
+ansible-vault encrypt_string 'neuer_wert' --name 'opencode_auth_token' --vault-password-file .vault_pass --encrypt-vault-id default
+
+# Ausgabe in vars/vault.yml einfuegen
+```
+
 ## Erneut ausfuehren
 
 Einfach den curl-Befehl nochmal ausfuehren. Bereits installierte Pakete werden uebersprungen, nur Aenderungen werden angewendet.
@@ -52,9 +78,14 @@ Einfach den curl-Befehl nochmal ausfuehren. Bereits installierte Pakete werden u
 ├── site.playbook          # Haupt-Einstiegspunkt
 ├── local.playbook         # System-Setup
 ├── luanti.playbook        # Luanti Installation + Config
+├── ai-tools.playbook      # OpenCode + Goose Desktop
 ├── bootstrap.sh           # curl|bash Installer
-├── ansible.cfg            # Log-Konfiguration
+├── ansible.cfg            # Log + Vault-Konfiguration
 ├── collections/
 │   └── requirements.yml   # Ansible Collection Abhaengigkeit
-└── files/                 # Konfigurationsdateien
+├── files/                 # Konfigurationsdateien
+├── templates/
+│   └── opencode.json.j2   # OpenCode Config (Jinja2 Template)
+└── vars/
+    └── vault.yml          # Verschluesselte Zugangsdaten
 ```
