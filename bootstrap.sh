@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-REPO_URL="git@github.com:KidsLabDe/ansible-pull.git"
+REPO_URL="https://github.com/KidsLabDe/ansible-pull.git"
 PLAYBOOK="site.playbook"
 LOGFILE="/var/log/ansible-pull.log"
 VAULT_PASS_FILE="/root/.vault_pass"
