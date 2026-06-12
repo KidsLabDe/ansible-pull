@@ -31,68 +31,43 @@
       group: "{{ the_user }}"
       mode: '0600'
 
-  # --- Goose Desktop ---
+  - name: OpenCode Mentor-Systemprompt deployen
+    ansible.builtin.copy:
+      src: files/opencode-mentor.md
+      dest: "/home/{{ the_user }}/.config/opencode/AGENTS.md"
+      owner: "{{ the_user }}"
+      group: "{{ the_user }}"
+      mode: '0644'
 
-  - name: Aktuelle Goose-Version von GitHub ermitteln
-    ansible.builtin.uri:
-      url: https://api.github.com/repos/block/goose/releases/latest
-      return_content: yes
-    register: goose_release
+  # --- VS Code (Code-OSS) mit OpenCode-Extension ---
 
-  - name: Goose-Version setzen
-    ansible.builtin.set_fact:
-      goose_version: "{{ goose_release.json.tag_name }}"
-      goose_version_number: "{{ goose_release.json.tag_name | regex_replace('^v', '') }}"
+  - name: Code-OSS installieren
+    ansible.builtin.pacman:
+      name: code
+      state: present
 
-  - name: Pruefen ob Goose Desktop bereits installiert ist
+  - name: OpenCode-Extension fuer Code-OSS installieren
+    become_user: "{{ the_user }}"
+    ansible.builtin.command:
+      cmd: code --install-extension sst-dev.opencode
+    register: code_extension
+    changed_when: "'already installed' not in code_extension.stdout"
+
+  # --- Goose Desktop entfernen (wird nicht mehr genutzt) ---
+
+  - name: Pruefen ob Goose Desktop installiert ist
     ansible.builtin.command: flatpak info io.github.block.Goose
     register: goose_installed
     changed_when: false
     failed_when: false
 
-  - name: Goose Desktop Flatpak herunterladen
-    ansible.builtin.get_url:
-      url: "https://github.com/block/goose/releases/download/{{ goose_version }}/io.github.block.Goose_stable_x86_64.flatpak"
-      dest: /tmp/goose-desktop.flatpak
-    when: goose_installed.rc != 0
-
-  - name: Goose Desktop Flatpak installieren
+  - name: Goose Desktop deinstallieren
     ansible.builtin.command:
-      cmd: flatpak install --noninteractive --system /tmp/goose-desktop.flatpak
-    when: goose_installed.rc != 0
+      cmd: flatpak uninstall --noninteractive --system io.github.block.Goose
+    when: goose_installed.rc == 0
     changed_when: true
 
-  - name: Goose Desktop Flatpak aufraeumen
+  - name: Goose Konfigurationsdaten entfernen
     ansible.builtin.file:
-      path: /tmp/goose-desktop.flatpak
+      path: "/home/{{ the_user }}/.var/app/io.github.block.Goose"
       state: absent
-
-  - name: Goose Config-Verzeichnis erstellen
-    ansible.builtin.file:
-      path: "/home/{{ the_user }}/.var/app/io.github.block.Goose/config/goose/custom_providers"
-      state: directory
-      owner: "{{ the_user }}"
-      group: "{{ the_user }}"
-      mode: '0755'
-
-  - name: Goose Konfiguration deployen
-    ansible.builtin.template:
-      src: templates/goose-config.yaml.j2
-      dest: "/home/{{ the_user }}/.var/app/io.github.block.Goose/config/goose/config.yaml"
-      owner: "{{ the_user }}"
-      group: "{{ the_user }}"
-      mode: '0600'
-
-  - name: Goose Custom Provider deployen
-    ansible.builtin.template:
-      src: templates/goose-custom-provider.json.j2
-      dest: "/home/{{ the_user }}/.var/app/io.github.block.Goose/config/goose/custom_providers/custom_kidslab_ollama.json"
-      owner: "{{ the_user }}"
-      group: "{{ the_user }}"
-      mode: '0600'
-
-  - name: Goose Desktop in GNOME-Schnellstartleiste aufnehmen
-    become_user: "{{ the_user }}"
-    community.general.dconf:
-      key: "/org/gnome/shell/favorite-apps"
-      value: "['firefox.desktop', 'org.gnome.Nautilus.desktop', 'org.luanti.luanti.desktop', 'io.github.block.Goose.desktop']"

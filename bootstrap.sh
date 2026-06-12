@@ -6,9 +6,6 @@ PLAYBOOK="site.playbook"
 LOGFILE="/var/log/ansible-pull.log"
 VAULT_PASS_FILE="/root/.vault_pass"
 
-# PLATZHALTER: Hier dein Passwort eintragen
-VAULT_PASSWORD="DEIN_PASSWORT_HIER"
-
 # Alles loggen (stdout + stderr) und gleichzeitig auf der Konsole ausgeben
 exec > >(tee -a "$LOGFILE") 2>&1
 
@@ -21,17 +18,15 @@ if [ "$EUID" -ne 0 ]; then
   exit 1
 fi
 
-# Vault Passwort einrichten
-if [ "$VAULT_PASSWORD" != "DEIN_PASSWORT_HIER" ]; then
-    echo "Richte Vault-Passwortdatei in $VAULT_PASS_FILE ein..."
-    echo -n "$VAULT_PASSWORD" > "$VAULT_PASS_FILE"
+# Vault-Passwort interaktiv abfragen (nur bei Erstinstallation noetig)
+# Lesen von /dev/tty, weil das Script per "curl | bash" laeuft und stdin die Pipe ist
+if [ ! -f "$VAULT_PASS_FILE" ]; then
+    read -rs -p "Vault-Passwort eingeben: " VAULT_PASSWORD < /dev/tty
+    echo ""
+    printf '%s' "$VAULT_PASSWORD" > "$VAULT_PASS_FILE"
     chmod 600 "$VAULT_PASS_FILE"
     chown root:root "$VAULT_PASS_FILE"
-else
-    if [ ! -f "$VAULT_PASS_FILE" ]; then
-        echo "WARNUNG: $VAULT_PASS_FILE fehlt und VAULT_PASSWORD ist noch der Platzhalter!"
-        echo "Bitte das Passwort in der bootstrap.sh eintragen."
-    fi
+    echo "Vault-Passwortdatei in $VAULT_PASS_FILE gespeichert."
 fi
 
 # Abhaengigkeiten sicherstellen

@@ -1,28 +1,30 @@
 #!/bin/bash
-# Script zum Einrichten des Ansible Vault Passworts auf Arch Linux
+# Script zum Einrichten oder Aktualisieren des Ansible Vault Passworts auf einem Client
 set -e
 
-# Pfad aus ansible.cfg (mit Unterstrich)
 VAULT_PASS_FILE="/root/.vault_pass"
 
 # PRÜFUNG: Script muss als root ausgeführt werden
-if [ "$EUID" -ne 0 ]; then 
+if [ "$EUID" -ne 0 ]; then
   echo "Bitte als root ausführen (sudo ./setup-vault.sh)"
   exit 1
 fi
 
-# PLATZHALTER: Hier dein Passwort eintragen
-VAULT_PASSWORD="DEIN_PASSWORT_HIER"
+# Passwort zweimal abfragen, um Tippfehler zu vermeiden
+read -rs -p "Vault-Passwort eingeben: " VAULT_PASSWORD < /dev/tty
+echo ""
+read -rs -p "Vault-Passwort wiederholen: " VAULT_PASSWORD2 < /dev/tty
+echo ""
 
-if [ "$VAULT_PASSWORD" == "DEIN_PASSWORT_HIER" ]; then
-  echo "FEHLER: Bitte ersetze den Platzhalter 'DEIN_PASSWORT_HIER' im Script durch dein echtes Passwort."
+if [ "$VAULT_PASSWORD" != "$VAULT_PASSWORD2" ]; then
+  echo "FEHLER: Die Passwörter stimmen nicht überein."
   exit 1
 fi
 
 echo "Erstelle Vault-Passwortdatei in $VAULT_PASS_FILE..."
 
 # Passwort schreiben (ohne Zeilenumbruch am Ende)
-echo -n "$VAULT_PASSWORD" > "$VAULT_PASS_FILE"
+printf '%s' "$VAULT_PASSWORD" > "$VAULT_PASS_FILE"
 
 # Berechtigungen sicher setzen (nur root darf lesen/schreiben)
 chmod 600 "$VAULT_PASS_FILE"
