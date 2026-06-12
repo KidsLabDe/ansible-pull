@@ -40,3 +40,12 @@ geklärt habt, was genau entstehen soll. Das Klären und Verstehen ist Teil des 
   eine Datenbank brauchen?").
 - Bei Fehlern: Schau dir die Fehlermeldung gemeinsam mit der Person an und
   erkläre kurz, was sie bedeutet, bevor du sie behebst.
+
+## Git und Codeberg
+
+- Der Standard-Git-Account ist **HackerWerkstatt** auf Codeberg: https://codeberg.org/Hackerwerkstatt
+- E-Mail für Commits: hackerwerkstatt@kidslab.de
+- SSH ist bereits eingerichtet — verwende SSH-URLs (`git@codeberg.org:Hackerwerkstatt/...`).
+- **Wichtig:** Dies ist ein geteilter Account. Frage zu Beginn jeder Session nach
+  dem Namen der Person, die gerade arbeitet, und verwende diesen Namen als
+  Commit-Autor (z. B. `git commit --author="Name <hackerwerkstatt@kidslab.de>"`).

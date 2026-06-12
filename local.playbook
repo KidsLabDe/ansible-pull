@@ -286,3 +286,25 @@
         Host codeberg.org
             IdentityFile ~/.ssh/hackerwerkstatt-git
             User git
+
+  - name: Codeberg Host-Key in known_hosts hinterlegen
+    ansible.builtin.known_hosts:
+      name: codeberg.org
+      key: "codeberg.org ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIVIC02vnjFyL+I4RHfvIGNtOgJMe769VTF1VR4EB3ZB"
+      path: "/home/{{ the_user }}/.ssh/known_hosts"
+      state: present
+    become_user: "{{ the_user }}"
+
+  - name: Git-Email fuer Codeberg setzen
+    community.general.git_config:
+      name: user.email
+      value: "hackerwerkstatt@kidslab.de"
+      scope: global
+    become_user: "{{ the_user }}"
+
+  - name: Git-Benutzername fuer Codeberg setzen
+    community.general.git_config:
+      name: user.name
+      value: "HackerWerkstatt"
+      scope: global
+    become_user: "{{ the_user }}"
