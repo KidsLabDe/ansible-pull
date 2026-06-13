@@ -10,10 +10,10 @@
 
   # --- OpenCode ---
 
-  - name: OpenCode installieren
+  - name: OpenCode installieren / aktualisieren
     ansible.builtin.pacman:
       name: opencode
-      state: present
+      state: latest
 
   - name: OpenCode Config-Verzeichnis erstellen
     ansible.builtin.file:
