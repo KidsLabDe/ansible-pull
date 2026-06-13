@@ -204,6 +204,15 @@
       mode: '0440'
       content: "{{ the_user }} ALL=(ALL) NOPASSWD: /usr/local/bin/kidslab-update\n"
 
+  - name: Welcome-Message in .bashrc einbinden
+    ansible.builtin.lineinfile:
+      path: "/home/{{ the_user }}/.bashrc"
+      line: "[ -f /etc/profile.d/ansible-pull-status.sh ] && bash /etc/profile.d/ansible-pull-status.sh"
+      create: yes
+      owner: "{{ the_user }}"
+      group: "{{ the_user }}"
+      mode: '0644'
+
   - name: Alias 'update' in .bashrc anlegen
     ansible.builtin.lineinfile:
       path: "/home/{{ the_user }}/.bashrc"
