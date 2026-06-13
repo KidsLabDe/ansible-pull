@@ -1,4 +1,8 @@
 #!/bin/bash
+# Guard gegen doppelte Ausgabe (Login-Shell + .bashrc/.zshrc)
+[ -n "$KIDSLAB_WELCOME_SHOWN" ] && return
+export KIDSLAB_WELCOME_SHOWN=1
+
 RED='\033[1;31m'
 YEL='\033[1;33m'
 CYN='\033[1;36m'

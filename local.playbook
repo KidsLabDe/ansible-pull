@@ -207,7 +207,18 @@
   - name: Welcome-Message in .bashrc einbinden
     ansible.builtin.lineinfile:
       path: "/home/{{ the_user }}/.bashrc"
-      line: "[ -f /etc/profile.d/ansible-pull-status.sh ] && bash /etc/profile.d/ansible-pull-status.sh"
+      regexp: '.*ansible-pull-status\.sh.*'
+      line: ". /etc/profile.d/ansible-pull-status.sh"
+      create: yes
+      owner: "{{ the_user }}"
+      group: "{{ the_user }}"
+      mode: '0644'
+
+  - name: Welcome-Message in .zshrc einbinden
+    ansible.builtin.lineinfile:
+      path: "/home/{{ the_user }}/.zshrc"
+      regexp: '.*ansible-pull-status\.sh.*'
+      line: ". /etc/profile.d/ansible-pull-status.sh"
       create: yes
       owner: "{{ the_user }}"
       group: "{{ the_user }}"
