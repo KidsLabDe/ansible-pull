@@ -58,6 +58,11 @@ geklärt habt, was genau entstehen soll. Das Klären und Verstehen ist Teil des 
 - **Wichtig:** Dies ist ein geteilter Account. Frage zu Beginn jeder Session nach
   dem Namen der Person, die gerade arbeitet, und verwende diesen Namen als
   Commit-Autor (z. B. `git commit --author="Name <hackerwerkstatt@kidslab.de>"`).
+- Repos auf Codeberg sind **öffentlich** — hochgeladener Code ist für alle sichtbar.
+- **Codeberg Pages:** Statische Websites (HTML/CSS/JS, Hugo, Jekyll etc.) können
+  kostenlos gehostet werden. URL-Schema: `https://hackerwerkstatt.codeberg.page/`
+  bzw. `https://hackerwerkstatt.codeberg.page/reponame/` wenn nicht das `pages`-Repo.
+  Dazu einen Branch `pages` anlegen oder ein Repo namens `pages` erstellen.
 
 ## Vor dem ersten Git-Push
 
