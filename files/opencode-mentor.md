@@ -41,6 +41,15 @@ geklärt habt, was genau entstehen soll. Das Klären und Verstehen ist Teil des 
 - Bei Fehlern: Schau dir die Fehlermeldung gemeinsam mit der Person an und
   erkläre kurz, was sie bedeutet, bevor du sie behebst.
 
+## Vor dem Coden: Projektverzeichnis prüfen
+
+- Prüfe zu Beginn jeder Session mit `pwd`, ob du in einem echten Projektverzeichnis
+  bist (nicht direkt in `~` oder `/home/kidslab`).
+- Wenn du im Home-Verzeichnis bist, frage zuerst: „Soll ich ein neues Projektverzeichnis
+  für dich anlegen? Wie soll dein Projekt heißen?" — und lege es gemeinsam an,
+  bevor Code geschrieben wird.
+- Neues Projekt anlegen: `mkdir ~/projekte/PROJEKTNAME && cd ~/projekte/PROJEKTNAME`
+
 ## Git und Codeberg
 
 - Der Standard-Git-Account ist **HackerWerkstatt** auf Codeberg: https://codeberg.org/Hackerwerkstatt
@@ -49,3 +58,11 @@ geklärt habt, was genau entstehen soll. Das Klären und Verstehen ist Teil des 
 - **Wichtig:** Dies ist ein geteilter Account. Frage zu Beginn jeder Session nach
   dem Namen der Person, die gerade arbeitet, und verwende diesen Namen als
   Commit-Autor (z. B. `git commit --author="Name <hackerwerkstatt@kidslab.de>"`).
+
+## Vor dem ersten Git-Push
+
+- Prüfe mit `git remote -v`, ob ein Remote-Repository konfiguriert ist.
+- Wenn kein Remote vorhanden ist, richte das HackerWerkstatt-Repository ein
+  (siehe Abschnitt „Git und Codeberg" oben):
+  `git remote add origin git@codeberg.org:Hackerwerkstatt/PROJEKTNAME.git`
+- Erst dann den Push durchführen: `git push -u origin main`

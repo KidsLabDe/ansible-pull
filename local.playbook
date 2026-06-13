@@ -213,10 +213,28 @@
       group: "{{ the_user }}"
       mode: '0644'
 
+  - name: Alias 'ansible-pull' in .bashrc anlegen (Hinweis auf update-Befehl)
+    ansible.builtin.lineinfile:
+      path: "/home/{{ the_user }}/.bashrc"
+      line: "alias ansible-pull='echo \"Bitte nutze den Befehl: update\"; sudo /usr/local/bin/kidslab-update'"
+      create: yes
+      owner: "{{ the_user }}"
+      group: "{{ the_user }}"
+      mode: '0644'
+
   - name: Alias 'update' in .zshrc anlegen
     ansible.builtin.lineinfile:
       path: "/home/{{ the_user }}/.zshrc"
       line: "alias update='sudo /usr/local/bin/kidslab-update'"
+      create: yes
+      owner: "{{ the_user }}"
+      group: "{{ the_user }}"
+      mode: '0644'
+
+  - name: Alias 'ansible-pull' in .zshrc anlegen (Hinweis auf update-Befehl)
+    ansible.builtin.lineinfile:
+      path: "/home/{{ the_user }}/.zshrc"
+      line: "alias ansible-pull='echo \"Bitte nutze den Befehl: update\"; sudo /usr/local/bin/kidslab-update'"
       create: yes
       owner: "{{ the_user }}"
       group: "{{ the_user }}"

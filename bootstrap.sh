@@ -18,16 +18,15 @@ if [ "$EUID" -ne 0 ]; then
   exit 1
 fi
 
-# Vault-Passwort interaktiv abfragen (nur bei Erstinstallation noetig)
+# Vault-Passwort immer neu abfragen — verhindert Probleme mit altem/falschem Passwort
 # Lesen von /dev/tty, weil das Script per "curl | bash" laeuft und stdin die Pipe ist
-if [ ! -f "$VAULT_PASS_FILE" ]; then
-    read -rs -p "Vault-Passwort eingeben: " VAULT_PASSWORD < /dev/tty
-    echo ""
-    printf '%s' "$VAULT_PASSWORD" > "$VAULT_PASS_FILE"
-    chmod 600 "$VAULT_PASS_FILE"
-    chown root:root "$VAULT_PASS_FILE"
-    echo "Vault-Passwortdatei in $VAULT_PASS_FILE gespeichert."
-fi
+[ -f "$VAULT_PASS_FILE" ] && rm -f "$VAULT_PASS_FILE"
+read -rs -p "Vault-Passwort eingeben: " VAULT_PASSWORD < /dev/tty
+echo ""
+printf '%s' "$VAULT_PASSWORD" > "$VAULT_PASS_FILE"
+chmod 600 "$VAULT_PASS_FILE"
+chown root:root "$VAULT_PASS_FILE"
+echo "Vault-Passwortdatei in $VAULT_PASS_FILE gespeichert."
 
 # Abhaengigkeiten sicherstellen
 pacman -Sy --noconfirm --needed ansible git

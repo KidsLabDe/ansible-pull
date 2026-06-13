@@ -58,7 +58,7 @@
     become_user: kidslab
     community.general.dconf:
       key: "/org/gnome/shell/favorite-apps"
-      value: "['firefox.desktop', 'org.gnome.Nautilus.desktop', 'org.luanti.luanti.desktop']"
+      value: "['firefox.desktop', 'org.gnome.Nautilus.desktop', 'org.gnome.Console.desktop', 'org.luanti.luanti.desktop']"
 
   - name: MOTD-Script fuer ansible-pull Status
     ansible.builtin.copy:
