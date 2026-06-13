@@ -1,4 +1,30 @@
 #!/bin/bash
+RED='\033[1;31m'
+YEL='\033[1;33m'
+CYN='\033[1;36m'
+GRN='\033[1;32m'
+WHT='\033[1;37m'
+DIM='\033[2;37m'
+RST='\033[0m'
+
+echo ""
+echo -e "${RED}  ██╗  ██╗██╗██████╗ ███████╗██╗      █████╗ ██████╗ ${RST}"
+echo -e "${RED}  ██║ ██╔╝██║██╔══██╗██╔════╝██║     ██╔══██╗██╔══██╗${RST}"
+echo -e "${YEL}  █████╔╝ ██║██║  ██║███████╗██║     ███████║██████╔╝${RST}"
+echo -e "${YEL}  ██╔═██╗ ██║██║  ██║╚════██║██║     ██╔══██║██╔══██╗${RST}"
+echo -e "${CYN}  ██║  ██╗██║██████╔╝███████║███████╗██║  ██║██████╔╝${RST}"
+echo -e "${CYN}  ╚═╝  ╚═╝╚═╝╚═════╝ ╚══════╝╚══════╝╚═╝  ╚═╝╚═════╝${RST}"
+echo ""
+echo -e "  ${WHT}Willkommen im KidsLab! Viel Spaß beim Coden 🚀${RST}"
+echo ""
+echo -e "  ${DIM}Rechner :${RST}  ${GRN}$(hostname)${RST}"
+echo -e "  ${DIM}Datum   :${RST}  $(date '+%A, %d. %B %Y – %H:%M Uhr')"
 if [ -f /etc/ansible-pull-status ]; then
-    cat /etc/ansible-pull-status
+    STATUS=$(cat /etc/ansible-pull-status)
+    echo -e "  ${DIM}Update  :${RST}  ${GRN}${STATUS}${RST}"
+else
+    echo -e "  ${DIM}Update  :${RST}  ${YEL}Noch kein Update gelaufen${RST}"
 fi
+echo ""
+echo -e "  ${DIM}Tipp: Tippe ${RST}${CYN}update${RST}${DIM}, um das System zu aktualisieren.${RST}"
+echo ""
