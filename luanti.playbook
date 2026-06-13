@@ -22,6 +22,11 @@
       name: org.luanti.luanti
       state: present
 
+  - name: LÖVE2D (Lua-Framework) installieren
+    ansible.builtin.pacman:
+      name: love
+      state: present
+
   - name: Luanti Config-Verzeichnis erstellen
     ansible.builtin.file:
       path: "/home/kidslab/.var/app/org.luanti.luanti/.minetest/"
