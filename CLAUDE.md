@@ -44,7 +44,7 @@ ansible-vault edit vars/vault.yml --vault-password-file .vault_pass
 
 1. **`local.playbook`** — System setup: user creation (`kidslab`), WLAN config, GDM/TTY autologin, GNOME desktop settings (dconf), wallpaper, Pacoloco package mirror, cron + systemd service for automatic updates (PackageKit and GNOME update notifications are disabled — updates run exclusively via ansible-pull), shell aliases
 2. **`luanti.playbook`** — Application setup: Flatpak/Flathub, Luanti (Minetest) installation and game configuration, GNOME favorites bar
-3. **`ai-tools.playbook`** — AI tools: OpenCode (via pacman) with OpenRouter as provider (default model Gemma 4 26B A4B, API key from vault), a German mentor system prompt (`files/opencode-mentor.md` → `~/.config/opencode/AGENTS.md`), Code-OSS with the OpenCode extension (`sst-dev.opencode` from Open VSX), and removal of the no-longer-used Goose Desktop
+3. **`ai-tools.playbook`** — AI tools: OpenCode (via pacman) with OpenRouter as provider (default model Gemma 4 31B, API key from vault), a German mentor system prompt (`files/opencode-mentor.md` → `~/.config/opencode/AGENTS.md`), Code-OSS with the OpenCode extension (`sst-dev.opencode` from Open VSX), and removal of the no-longer-used Goose Desktop
 
 All playbooks run against `localhost` with `connection: local` and `become: yes`. Tasks that need the unprivileged user context use `become_user: "{{ the_user }}"`.
 
@@ -53,6 +53,8 @@ All playbooks run against `localhost` with `connection: local` and `become: yes`
 **`files/`** contains static config files deployed to clients (GDM config, dconf profiles, minetest.conf, wallpaper, update script, MOTD script).
 
 **`templates/`** contains Jinja2 templates for the OpenCode config; credentials are pulled from the encrypted `vars/vault.yml`.
+
+**OpenCode model whitelist — keep in sync with the Hackerwerkstatt repo.** The curated model list in `templates/opencode.json.j2` (the `models` object, the default under `model`, and `enabled_providers`) must stay identical to `setup-client.sh` / `setup-client.ps1` in the [Hackerwerkstatt repo](https://codeberg.org/KidsLab/Hackerwerkstatt) (`KidsLab/Hackerwerkstatt`). When a model is added/removed or the default changes there, mirror it here (and vice versa). Known, intentional difference: this repo has **no** caching plugin and **no** `setCacheKey` — only the model whitelist is kept in sync, not the caching setup.
 
 ## Key Variables (local.playbook)
 

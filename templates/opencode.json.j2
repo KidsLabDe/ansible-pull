@@ -9,21 +9,24 @@
         "apiKey": "{{ openrouter_api_key }}"
       },
       "models": {
-        "google/gemma-4-26b-a4b-it": {
+        "google/gemma-4-31b-it": {
           "name": "Gemma 4 (Standard)"
-        },
-        "deepseek/deepseek-chat-v3.1": {
-          "name": "DeepSeek V3.1"
         },
         "qwen/qwen3-coder-30b-a3b-instruct": {
           "name": "Qwen3 Coder"
         },
+        "z-ai/glm-4.7-flash": {
+          "name": "GLM 4.7 Flash"
+        },
         "mistralai/mistral-small-3.2-24b-instruct": {
           "name": "Mistral Small"
+        },
+        "deepseek/deepseek-v4-flash": {
+          "name": "DeepSeek V4 Flash"
         }
       }
     }
   },
   "enabled_providers": ["kidslab"],
-  "model": "kidslab/google/gemma-4-26b-a4b-it"
+  "model": "kidslab/google/gemma-4-31b-it"
 }
