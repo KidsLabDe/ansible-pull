@@ -84,6 +84,26 @@
           "NewTabPageLocation": "https://mos.kidslab.de"
         }
 
+  - name: .config-Verzeichnis fuer kidslab sicherstellen
+    ansible.builtin.file:
+      path: /home/kidslab/.config
+      state: directory
+      owner: kidslab
+      group: kidslab
+      mode: '0755'
+
+  # Bei Autologin ohne Passwort bleibt der GNOME-Keyring gesperrt, wodurch
+  # Chromium beim Start nach dem Keyring-Passwort fragt. --password-store=basic
+  # verzichtet auf den System-Keyring und unterbindet die Abfrage.
+  - name: Chromium-Keyring-Abfrage unterbinden (password-store=basic)
+    ansible.builtin.copy:
+      dest: /home/kidslab/.config/chromium-flags.conf
+      owner: kidslab
+      group: kidslab
+      mode: '0644'
+      content: |
+        --password-store=basic
+
   - name: Luanti und Chromium in GNOME-Schnellstartleiste
     become_user: kidslab
     community.general.dconf:
