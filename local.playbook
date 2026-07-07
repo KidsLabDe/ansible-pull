@@ -69,6 +69,19 @@
       masked: yes
     ignore_errors: yes
 
+  - name: pamac automatischen Update-Check deaktivieren (Updates nur ueber ansible-pull)
+    ansible.builtin.replace:
+      path: /etc/pamac.conf
+      regexp: '^\s*#?\s*RefreshPeriod\s*=.*$'
+      replace: 'RefreshPeriod = 0'
+    ignore_errors: yes
+
+  - name: pamac-daemon stoppen (sperrt sonst die Pacman-Datenbank)
+    ansible.builtin.systemd:
+      name: pamac-daemon
+      state: stopped
+    ignore_errors: yes
+
   - name: Benutzer 'kidslab' erstellen
     ansible.builtin.user:
       name: "{{ the_user }}"
