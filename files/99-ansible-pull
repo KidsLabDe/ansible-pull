@@ -1,7 +1,5 @@
 #!/bin/bash
-# Guard gegen doppelte Ausgabe/Registrierung (Login-Shell + .bashrc/.zshrc)
-[ -n "$KIDSLAB_WELCOME_SHOWN" ] && return
-export KIDSLAB_WELCOME_SHOWN=1
+# KidsLab-Begruessung fuer interaktive Shells (bash + zsh).
 
 _kidslab_welcome() {
     local RED='\033[1;31m'
@@ -36,17 +34,28 @@ _kidslab_welcome() {
 }
 
 # In zsh loescht die Manjaro-zsh-Config beim ersten Prompt-Aufbau den
-# Bildschirm, wodurch eine direkt beim Sourcen ausgegebene Begruessung
-# sofort wieder verschwindet. Daher die Ausgabe verzoegern und erst beim
-# ersten Prompt zeigen, danach den Hook wieder abmelden.
+# Bildschirm (und Powerlevel10k faengt Ausgaben waehrend der Init ab),
+# wodurch eine direkt beim Sourcen ausgegebene Begruessung verschwindet.
+# Ausgabe daher ueber einen precmd-Hook nach der Init zeigen.
+#
+# Das Script wird auf Manjaro zweimal geladen: zuerst ueber
+# /etc/zsh/zprofile -> /etc/profile -> /etc/profile.d/ (dort ueberlebt der
+# Hook die spaetere .zshrc-Init nicht), dann ueber die Einbindung in
+# ~/.zshrc. Deshalb KEIN Guard-Flag, sondern den Hook bei jeder Ladung neu
+# ans ENDE der precmd-Kette setzen (nach dem Manjaro-clear). add-zsh-hook
+# registriert nicht doppelt; der Hook meldet sich nach dem ersten Feuern ab.
 if [ -n "$ZSH_VERSION" ]; then
     autoload -Uz add-zsh-hook
     _kidslab_welcome_once() {
         _kidslab_welcome
         add-zsh-hook -d precmd _kidslab_welcome_once
-        unset -f _kidslab_welcome_once
+        unset -f _kidslab_welcome_once 2>/dev/null
     }
+    add-zsh-hook -d precmd _kidslab_welcome_once 2>/dev/null
     add-zsh-hook precmd _kidslab_welcome_once
 else
+    # bash: direkte Ausgabe, aber nur einmal (Login via profile.d + .bashrc).
+    [ -n "$KIDSLAB_WELCOME_SHOWN" ] && return
+    export KIDSLAB_WELCOME_SHOWN=1
     _kidslab_welcome
 fi
