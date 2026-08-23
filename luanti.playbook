@@ -59,6 +59,11 @@
       group: kidslab
       mode: '0777'
 
+  - name: Godot installieren
+    ansible.builtin.pacman:
+      name: godot
+      state: present
+
   - name: Chromium installieren
     ansible.builtin.pacman:
       name: chromium
