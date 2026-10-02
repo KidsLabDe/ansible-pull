@@ -1,0 +1,41 @@
+{
+  "modelProviders": {
+    "openai": [
+      {
+        "id": "qwen3.8:27b",
+        "name": "Qwen (ohne Log)",
+        "envKey": "KIDSLAB_API_KEY",
+        "baseUrl": "https://ki.kidslab.de/api-ext/v1",
+        "generationConfig": {
+          "contextWindowSize": 163840
+        }
+      },
+      {
+        "id": "qwen3.8:27b",
+        "name": "Qwen (mit Log)",
+        "envKey": "KIDSLAB_API_KEY",
+        "baseUrl": "https://ki.kidslab.de/api-learn/v1",
+        "generationConfig": {
+          "contextWindowSize": 163840,
+          "customHeaders": {
+            "X-Learn-Id": "{{ ansible_facts['hostname'] }}"
+          }
+        }
+      }
+    ]
+  },
+  "env": {
+    "KIDSLAB_API_KEY": "{{ kidslab_api_key }}"
+  },
+  "security": {
+    "auth": {
+      "selectedType": "openai"
+    }
+  },
+  "model": {
+    "name": "qwen3.8:27b"
+  },
+  "privacy": {
+    "usageStatisticsEnabled": false
+  }
+}

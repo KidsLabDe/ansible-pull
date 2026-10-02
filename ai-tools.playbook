@@ -39,6 +39,37 @@
       group: "{{ the_user }}"
       mode: '0644'
 
+  # --- Qwen Code ---
+
+  - name: Qwen Code installieren / aktualisieren
+    ansible.builtin.pacman:
+      name: qwen-code
+      state: latest
+
+  - name: Qwen Code Config-Verzeichnis erstellen
+    ansible.builtin.file:
+      path: "/home/{{ the_user }}/.qwen"
+      state: directory
+      owner: "{{ the_user }}"
+      group: "{{ the_user }}"
+      mode: '0755'
+
+  - name: Qwen Code Konfiguration deployen
+    ansible.builtin.template:
+      src: templates/qwen-settings.json.j2
+      dest: "/home/{{ the_user }}/.qwen/settings.json"
+      owner: "{{ the_user }}"
+      group: "{{ the_user }}"
+      mode: '0600'
+
+  - name: Qwen Code Mentor-Systemprompt deployen
+    ansible.builtin.copy:
+      src: files/opencode-mentor.md
+      dest: "/home/{{ the_user }}/.qwen/QWEN.md"
+      owner: "{{ the_user }}"
+      group: "{{ the_user }}"
+      mode: '0644'
+
   # --- VS Code (Code-OSS) mit OpenCode-Extension ---
 
   - name: Code-OSS installieren

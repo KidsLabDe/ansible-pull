@@ -32,7 +32,7 @@ Logs are written to `/var/log/ansible-pull.log` (configured in `ansible.cfg`).
 
 ## Ansible Vault
 
-`vars/vault.yml` is encrypted with Ansible Vault (contains e.g. `openrouter_api_key`). The password lives in `.vault_pass` locally (gitignored) and in `/root/.vault_pass` on clients (set up via `setup-vault.sh` or `bootstrap.sh`). Edit credentials with:
+`vars/vault.yml` is encrypted with Ansible Vault (contains e.g. `kidslab_api_key`, `openrouter_api_key`). The password lives in `.vault_pass` locally (gitignored) and in `/root/.vault_pass` on clients (set up via `setup-vault.sh` or `bootstrap.sh`). Edit credentials with:
 
 ```bash
 ansible-vault edit vars/vault.yml --vault-password-file .vault_pass
@@ -44,7 +44,7 @@ ansible-vault edit vars/vault.yml --vault-password-file .vault_pass
 
 1. **`local.playbook`** — System setup: user creation (`kidslab`), WLAN config, GDM/TTY autologin, GNOME desktop settings (dconf), wallpaper, Pacoloco package mirror, cron + systemd service for automatic updates (PackageKit and GNOME update notifications are disabled — updates run exclusively via ansible-pull), shell aliases
 2. **`luanti.playbook`** — Application setup: Flatpak/Flathub, Luanti (Minetest) installation and game configuration, GNOME favorites bar
-3. **`ai-tools.playbook`** — AI tools: OpenCode (via pacman) with OpenRouter as provider (default model Gemma 4 31B, API key from vault), a German mentor system prompt (`files/opencode-mentor.md` → `~/.config/opencode/AGENTS.md`), Code-OSS with the OpenCode extension (`sst-dev.opencode` from Open VSX), and removal of the no-longer-used Goose Desktop
+3. **`ai-tools.playbook`** — AI tools: OpenCode and Qwen Code (both via pacman) against the KidsLab model server `ki.kidslab.de` with two endpoints — `/api-ext` ("Qwen (ohne Log)", default) and `/api-learn` ("Qwen (mit Log)", shown on `/learn`, `X-Learn-Id` = hostname) — using `kidslab_api_key` from vault; OpenCode additionally has DeepSeek V4 Flash via OpenRouter. A German mentor system prompt (`files/opencode-mentor.md` → `~/.config/opencode/AGENTS.md` and `~/.qwen/QWEN.md`), Code-OSS with the OpenCode extension (`sst-dev.opencode` from Open VSX), and removal of the no-longer-used Goose Desktop
 
 All playbooks run against `localhost` with `connection: local` and `become: yes`. Tasks that need the unprivileged user context use `become_user: "{{ the_user }}"`.
 

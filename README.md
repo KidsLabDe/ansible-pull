@@ -44,7 +44,7 @@ Der Zeitpunkt der letzten Ausfuehrung wird beim Terminal-Oeffnen angezeigt.
 
 ## Vault (Passwort-Verwaltung)
 
-Sensible Daten (z.B. der OpenRouter-API-Key fuer OpenCode) sind mit Ansible Vault verschluesselt.
+Sensible Daten (z.B. die API-Keys fuer ki.kidslab.de und OpenRouter) sind mit Ansible Vault verschluesselt.
 Damit `ansible-pull` die Secrets entschluesseln kann, muss auf jedem Client das Vault-Passwort in `/root/.vault_pass` hinterlegt sein.
 
 ### Neuen Client einrichten
@@ -64,7 +64,7 @@ sudo bash setup-vault.sh
 ### Vault-Variable aendern
 
 ```bash
-# Neuen Wert verschluesseln (z.B. opencode_auth_token oder openrouter_api_key):
+# Neuen Wert verschluesseln (z.B. kidslab_api_key oder openrouter_api_key):
 ansible-vault encrypt_string 'neuer_wert' --name 'openrouter_api_key' --vault-password-file .vault_pass --encrypt-vault-id default
 
 # Ausgabe in vars/vault.yml einfuegen
