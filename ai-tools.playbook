@@ -39,6 +39,22 @@
       group: "{{ the_user }}"
       mode: '0644'
 
+  - name: OpenCode Plugin-Verzeichnis erstellen
+    ansible.builtin.file:
+      path: "/home/{{ the_user }}/.config/opencode/plugins"
+      state: directory
+      owner: "{{ the_user }}"
+      group: "{{ the_user }}"
+      mode: '0755'
+
+  - name: OpenCode Start-Hinweis (Logging) deployen
+    ansible.builtin.copy:
+      src: files/ki-logging-hint.ts
+      dest: "/home/{{ the_user }}/.config/opencode/plugins/ki-logging-hint.ts"
+      owner: "{{ the_user }}"
+      group: "{{ the_user }}"
+      mode: '0644'
+
   # --- Qwen Code ---
 
   - name: Qwen Code installieren / aktualisieren
