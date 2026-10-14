@@ -49,11 +49,18 @@
 
   - name: OpenCode Start-Hinweis (Logging) deployen
     ansible.builtin.copy:
-      src: files/ki-logging-hint.ts
-      dest: "/home/{{ the_user }}/.config/opencode/plugins/ki-logging-hint.ts"
+      src: files/ki-logging-hint/tui.ts
+      dest: "/home/{{ the_user }}/.config/opencode/plugins/ki-logging-hint/tui.ts"
       owner: "{{ the_user }}"
       group: "{{ the_user }}"
       mode: '0644'
+
+  # V2 erwartet das Layout plugins/<name>/tui.ts. Die alte flache Datei
+  # wuerde sonst als Server-Plugin geladen und beim Start crashen.
+  - name: Alte flache Plugin-Datei entfernen (V1-Layout)
+    ansible.builtin.file:
+      path: "/home/{{ the_user }}/.config/opencode/plugins/ki-logging-hint.ts"
+      state: absent
 
   # --- Qwen Code ---
 
