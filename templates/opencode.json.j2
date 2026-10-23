@@ -12,7 +12,9 @@
         "qwen": {
           "name": "Qwen (ohne Log)",
           "id": "qwen3.8:27b",
-          "limit": { "context": 163840, "output": 32000 }
+          "reasoning": true,
+          "limit": { "context": 163840, "output": 32000 },
+          "options": { "reasoningEffort": "medium" }
         }
       }
     },
@@ -30,7 +32,9 @@
         "qwen": {
           "name": "Qwen (mit Log)",
           "id": "qwen3.8:27b",
-          "limit": { "context": 163840, "output": 32000 }
+          "reasoning": true,
+          "limit": { "context": 163840, "output": 32000 },
+          "options": { "reasoningEffort": "medium" }
         }
       }
     },
