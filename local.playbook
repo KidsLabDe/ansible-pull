@@ -125,7 +125,7 @@
 
   - name: Hintergrundbild kopieren
     ansible.builtin.copy:
-      src: background/minecraft-bulb.png
+      src: background/kidslab-wallpaper-1920x1080.png
       dest: "/home/{{ the_user }}/.wallpaper.png"
       owner: "{{ the_user }}"
       group: "{{ the_user }}"
