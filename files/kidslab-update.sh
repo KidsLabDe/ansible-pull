@@ -4,6 +4,15 @@ REPO_URL="https://github.com/KidsLabDe/ansible-pull.git"
 PLAYBOOK="site.playbook"
 LOGFILE="/var/log/ansible-pull.log"
 VAULT_PASS_FILE="/root/.vault_pass"
+LOCKFILE="/run/kidslab-update.lock"
+
+# Nur ein Lauf gleichzeitig (Cron, Boot-Service und manuelles 'update'
+# koennen sich sonst ueberschneiden und die pacman-Datenbank sperren)
+exec 9>"$LOCKFILE"
+if ! flock -n 9; then
+    echo "Ein KidsLab Update laeuft bereits - bitte warten, bis es fertig ist."
+    exit 0
+fi
 
 exec > >(tee -a "$LOGFILE") 2>&1
 
