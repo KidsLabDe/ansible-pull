@@ -47,6 +47,14 @@
       group: "{{ the_user }}"
       mode: '0755'
 
+  - name: OpenCode Plugin-Verzeichnis für Logging-Hinweis erstellen
+    ansible.builtin.file:
+      path: "/home/{{ the_user }}/.config/opencode/plugins/ki-logging-hint"
+      state: directory
+      owner: "{{ the_user }}"
+      group: "{{ the_user }}"
+      mode: '0755'
+
   - name: OpenCode Start-Hinweis (Logging) deployen
     ansible.builtin.copy:
       src: files/ki-logging-hint/tui.ts
