@@ -45,24 +45,77 @@
     when: geocode_check.rc == 0
     changed_when: true
 
-  # GRUB vom automatischen Update ausnehmen: Ein grub-Update ersetzt die Module
-  # in /boot/grub, aber nicht den installierten Bootloader (MBR/EFI). Ohne
-  # erneutes grub-install bootet der Rechner danach nicht mehr
-  # ("symbol 'grub_user_error' not found" -> grub rescue).
-  # Eigene IgnorePkg-Zeile, pacman sammelt mehrere IgnorePkg-Eintraege auf.
-  # Manuelles GRUB-Update bei Bedarf: pacman -S grub && grub-install ... && update-grub
-  - name: GRUB vom System-Update ausnehmen (verhindert kaputten Bootloader)
+  # Frueher wurde grub per IgnorePkg gesperrt. Das reicht nicht: Manjaro hat
+  # GRUB in mehrere Pakete aufgeteilt (z.B. update-grub), die trotzdem
+  # aktualisiert werden. Die Sperre wird daher entfernt; stattdessen wird
+  # der Bootloader unten nach jeder GRUB-Aenderung neu installiert.
+  - name: Alte GRUB-Sperre aus pacman.conf entfernen
     ansible.builtin.lineinfile:
       path: /etc/pacman.conf
       regexp: '^IgnorePkg\s*=\s*grub\s*$'
-      line: "IgnorePkg = grub"
-      insertafter: '^\[options\]'
+      state: absent
 
-  - name: Komplettes System-Update (nur mit Pacoloco-Mirror)
-    ansible.builtin.pacman:
-      update_cache: yes
-      upgrade: yes
-    when: pacoloco_check is succeeded
+  - name: System-Update mit anschliessendem GRUB-Abgleich
+    block:
+      - name: Komplettes System-Update (nur mit Pacoloco-Mirror)
+        ansible.builtin.pacman:
+          update_cache: yes
+          upgrade: yes
+        when: pacoloco_check is succeeded
+
+    # Laeuft auch, wenn das Update abbricht: Sonst koennten neue GRUB-Module
+    # mit altem Bootloader liegen bleiben ("symbol 'grub_user_error' not
+    # found" -> grub rescue beim naechsten Start).
+    always:
+      - name: Pruefen ob /boot/efi eine EFI-Partition ist
+        ansible.builtin.command: findmnt -n -o FSTYPE /boot/efi
+        register: efi_fstype
+        changed_when: false
+        failed_when: false
+
+      - name: Installierte GRUB-Paketversion ermitteln
+        ansible.builtin.command: pacman -Q grub
+        register: grub_pkg
+        changed_when: false
+        failed_when: false
+
+      - name: Zuletzt in den Bootloader geschriebene GRUB-Version lesen
+        ansible.builtin.command: cat /var/lib/kidslab-grub-installed
+        register: grub_installed
+        changed_when: false
+        failed_when: false
+
+      # Beim ersten Lauf (keine Markerdatei) wird der Bootloader einmal neu
+      # geschrieben; danach nur, wenn sich das grub-Paket geaendert hat.
+      # Beide EFI-Pfade werden geschrieben: EFI/Manjaro und der Fallback
+      # EFI/BOOT/BOOTX64.EFI, den viele Geraete (und frisch eingespielte
+      # Images ohne NVRAM-Eintrag) tatsaechlich booten. NVRAM bleibt unberuehrt.
+      - name: GRUB-Bootloader passend zu den Modulen neu installieren
+        when:
+          - efi_fstype.stdout == "vfat"
+          - grub_pkg.rc == 0
+          - grub_installed.stdout != grub_pkg.stdout
+        block:
+          - name: GRUB nach EFI/Manjaro installieren
+            ansible.builtin.command: >-
+              grub-install --target=x86_64-efi --efi-directory=/boot/efi
+              --bootloader-id=Manjaro --no-nvram --recheck
+
+          - name: GRUB in den EFI-Fallback-Pfad installieren
+            ansible.builtin.command: >-
+              grub-install --target=x86_64-efi --efi-directory=/boot/efi
+              --removable --recheck
+
+          - name: GRUB-Konfiguration neu erzeugen
+            ansible.builtin.command: grub-mkconfig -o /boot/grub/grub.cfg
+
+          - name: Installierte GRUB-Version merken
+            ansible.builtin.copy:
+              dest: /var/lib/kidslab-grub-installed
+              content: "{{ grub_pkg.stdout }}"
+              owner: root
+              group: root
+              mode: '0644'
 
   - name: Systempakete installieren
     ansible.builtin.pacman:
