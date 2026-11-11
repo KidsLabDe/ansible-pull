@@ -45,6 +45,19 @@
     when: geocode_check.rc == 0
     changed_when: true
 
+  # GRUB vom automatischen Update ausnehmen: Ein grub-Update ersetzt die Module
+  # in /boot/grub, aber nicht den installierten Bootloader (MBR/EFI). Ohne
+  # erneutes grub-install bootet der Rechner danach nicht mehr
+  # ("symbol 'grub_user_error' not found" -> grub rescue).
+  # Eigene IgnorePkg-Zeile, pacman sammelt mehrere IgnorePkg-Eintraege auf.
+  # Manuelles GRUB-Update bei Bedarf: pacman -S grub && grub-install ... && update-grub
+  - name: GRUB vom System-Update ausnehmen (verhindert kaputten Bootloader)
+    ansible.builtin.lineinfile:
+      path: /etc/pacman.conf
+      regexp: '^IgnorePkg\s*=\s*grub\s*$'
+      line: "IgnorePkg = grub"
+      insertafter: '^\[options\]'
+
   - name: Komplettes System-Update (nur mit Pacoloco-Mirror)
     ansible.builtin.pacman:
       update_cache: yes
