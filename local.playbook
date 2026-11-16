@@ -118,20 +118,40 @@
               mode: '0644'
 
       # GRUB liest beim Start /boot/grub/grubenv (gespeicherter Booteintrag,
-      # Boot-Erfolg). Ist die Datei kaputt oder fehlt, erscheint beim Booten
-      # "invalid environment block". Neu anlegen ist harmlos: Es gehen nur
-      # gespeicherte Werte wie der zuletzt gewaehlte Eintrag verloren.
-      - name: GRUB-Umgebungsblock pruefen
+      # Boot-Erfolg). Auf btrfs steht darin zusaetzlich ein Verweis
+      # "env_block=..." auf einen reservierten Bereich am Anfang der
+      # btrfs-Partition. Ist dieser Bereich ungueltig (z.B. nach dem
+      # Einspielen eines Images), erscheint beim Booten
+      # "invalid environment block". Abhilfe (auf einem Client getestet):
+      # grubenv mit grub-editenv neu anlegen; der Verweis entfaellt dann und
+      # GRUB nutzt nur noch die Datei. Es gehen nur gespeicherte Werte wie
+      # boot_success verloren. Laeuft nach grub-install, falls dieses den
+      # Verweis wieder anlegt. Ein Fehler hier verhindert das Booten nicht:
+      # GRUB startet auch ohne gueltige grubenv.
+      - name: GRUB-Umgebungsdatei pruefen
         ansible.builtin.command: grub-editenv /boot/grub/grubenv list
         register: grubenv_check
         changed_when: false
         failed_when: false
 
-      - name: Kaputten GRUB-Umgebungsblock neu anlegen
-        ansible.builtin.shell: |
-          rm -f /boot/grub/grubenv
-          grub-editenv /boot/grub/grubenv create
-        when: grubenv_check.rc != 0
+      - name: Pruefen ob grubenv auf einen btrfs-Umgebungsblock verweist
+        ansible.builtin.command: grep -q '^env_block=' /boot/grub/grubenv
+        register: grubenv_envblock
+        changed_when: false
+        failed_when: false
+
+      # grub-editenv create schreibt grubenv.new und benennt es dann um,
+      # die alte Datei wird also erst ersetzt, wenn die neue fertig ist.
+      - name: GRUB-Umgebungsdatei neu anlegen (ohne btrfs-Umgebungsblock)
+        ansible.builtin.command: grub-editenv /boot/grub/grubenv create
+        when: grubenv_check.rc != 0 or grubenv_envblock.rc == 0
+
+      - name: Neue GRUB-Umgebungsdatei kontrollieren
+        ansible.builtin.command: grub-editenv /boot/grub/grubenv list
+        register: grubenv_verify
+        changed_when: false
+        failed_when: grubenv_verify.rc != 0 or 'env_block=' in grubenv_verify.stdout
+        when: grubenv_check.rc != 0 or grubenv_envblock.rc == 0
 
   - name: Systempakete installieren
     ansible.builtin.pacman:
