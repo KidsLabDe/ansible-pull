@@ -117,6 +117,22 @@
               group: root
               mode: '0644'
 
+      # GRUB liest beim Start /boot/grub/grubenv (gespeicherter Booteintrag,
+      # Boot-Erfolg). Ist die Datei kaputt oder fehlt, erscheint beim Booten
+      # "invalid environment block". Neu anlegen ist harmlos: Es gehen nur
+      # gespeicherte Werte wie der zuletzt gewaehlte Eintrag verloren.
+      - name: GRUB-Umgebungsblock pruefen
+        ansible.builtin.command: grub-editenv /boot/grub/grubenv list
+        register: grubenv_check
+        changed_when: false
+        failed_when: false
+
+      - name: Kaputten GRUB-Umgebungsblock neu anlegen
+        ansible.builtin.shell: |
+          rm -f /boot/grub/grubenv
+          grub-editenv /boot/grub/grubenv create
+        when: grubenv_check.rc != 0
+
   - name: Systempakete installieren
     ansible.builtin.pacman:
       name:
