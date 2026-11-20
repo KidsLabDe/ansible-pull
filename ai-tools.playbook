@@ -3,6 +3,19 @@
   become: yes
   vars:
     the_user: "kidslab"
+    # Wird in files/opencode/opencode.json hineingemischt (nur Kursraum).
+    opencode_kursraum:
+      provider:
+        kidslab-cloud:
+          name: "KidsLab (Cloud)"
+          npm: "@ai-sdk/openai-compatible"
+          options:
+            baseURL: "https://openrouter.ai/api/v1"
+            apiKey: "{file:openrouter-key}"
+          models:
+            "deepseek/deepseek-v4-flash":
+              name: "DeepSeek V4 Flash"
+      enabled_providers: ["kidslab-cloud"]
   vars_files:
     - vars/vault.yml
 
@@ -23,13 +36,48 @@
       group: "{{ the_user }}"
       mode: '0755'
 
-  - name: OpenCode Konfiguration deployen
-    ansible.builtin.template:
-      src: templates/opencode.json.j2
-      dest: "/home/{{ the_user }}/.config/opencode/opencode.json"
+  # Eine Config fuer alle: files/opencode/opencode.json ist die einzige Quelle.
+  # Die Hackerwerkstatt-Setup-Scripts (Heimrechner) laden genau diese Datei
+  # ueber raw.githubusercontent.com. Sie enthaelt keine Geheimnisse; Zugang
+  # und Lern-Name kommen per {file:...} aus zwei Nachbardateien (Pfad relativ
+  # zur opencode.json, abschliessender Zeilenumbruch wird ignoriert).
+  # Nur hier im Kursraum kommt der Cloud-Provider dazu (OpenRouter-Key aus
+  # dem Vault) -- zu Hause gibt es den Key nicht, ein {file:...} auf eine
+  # fehlende Datei wird zum leeren String, und die Kinder saehen einen
+  # Provider, der nur Fehler liefert.
+  - name: OpenCode Zugang (Bearer-Key) deployen
+    ansible.builtin.copy:
+      content: "Bearer {{ kidslab_api_key }}"
+      dest: "/home/{{ the_user }}/.config/opencode/kidslab-auth"
       owner: "{{ the_user }}"
       group: "{{ the_user }}"
       mode: '0600'
+
+  - name: OpenCode Lern-Name (X-Learn-Id = Rechnername) deployen
+    ansible.builtin.copy:
+      content: "{{ ansible_facts['hostname'] }}"
+      dest: "/home/{{ the_user }}/.config/opencode/learn-id"
+      owner: "{{ the_user }}"
+      group: "{{ the_user }}"
+      mode: '0644'
+
+  - name: OpenCode OpenRouter-Key deployen
+    ansible.builtin.copy:
+      content: "{{ openrouter_api_key }}"
+      dest: "/home/{{ the_user }}/.config/opencode/openrouter-key"
+      owner: "{{ the_user }}"
+      group: "{{ the_user }}"
+      mode: '0600'
+
+  - name: OpenCode Konfiguration deployen (zentrale Datei + Kursraum-Extras)
+    ansible.builtin.copy:
+      content: "{{ (lookup('ansible.builtin.file', 'files/opencode/opencode.json') | from_json)
+                   | combine(opencode_kursraum, recursive=True, list_merge='append')
+                   | to_nice_json(indent=2) }}\n"
+      dest: "/home/{{ the_user }}/.config/opencode/opencode.json"
+      owner: "{{ the_user }}"
+      group: "{{ the_user }}"
+      mode: '0644'
 
   - name: OpenCode Mentor-Systemprompt deployen
     ansible.builtin.copy:
