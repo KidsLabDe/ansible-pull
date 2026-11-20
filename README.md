@@ -87,8 +87,9 @@ Einfach den curl-Befehl nochmal ausfuehren. Bereits installierte Pakete werden u
 ├── collections/
 │   └── requirements.yml   # Ansible Collection Abhaengigkeit
 ├── files/                 # Konfigurationsdateien
+│   └── opencode/opencode.json  # OpenCode-Config: EINZIGE Quelle (auch fuer Hackerwerkstatt-Heimsetup)
 ├── templates/
-│   └── opencode.json.j2   # OpenCode Config (Jinja2 Template)
+│   └── qwen-settings.json.j2  # Qwen-Code-Config (Jinja2 Template)
 └── vars/
     └── vault.yml          # Verschluesselte Zugangsdaten
 ```
